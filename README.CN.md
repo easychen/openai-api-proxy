@@ -28,7 +28,7 @@ Proxy地址为 http://${IP}:9000
 
 ```js
 chatApi= new gpt.ChatGPTAPI({
-    apiKey: key,
+    apiKey: 'sk.....:<proxy_key写这里>',
     apiBaseUrl: "http://localhost:9001", // 传递代理地址
 });
 

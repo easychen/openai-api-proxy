@@ -36,7 +36,7 @@ Take `https://www.npmjs.com/package/chatgpt` as an example.
 
 ```js
 chatApi= new gpt.ChatGPTAPI({
-    apiKey: key,
+    apiKey: 'sk.....:<proxy_key here>',
     apiBaseUrl: "http://localhost:9001", // Pass the proxy address
 });
 
