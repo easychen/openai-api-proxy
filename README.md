@@ -1,41 +1,45 @@
 # openai-api-proxy
 
 Simple proxy for OpenAi api with one-line docker command
-正在整理，稍后发布，欢迎 watch
 
-## Docker 
+[简体中文](README.CN.md)
+
+以下英文由GPT翻译。The following English was translated by GPT.
+
+## Docker
 
 ```
 docker run -p 9000:9000 easychen/ai.level06.com:latest
 ```
 
-Proxy地址为 http://${IP}:9000
+The proxy address is http://${IP}:9000.
 
-### 可用环境变量
+### Available Environment Variables
 
-1. PORT: 服务端口
-1. PROXY_KEY: 代理访问KEY，用于限制访问
-1. TIMEOUT：请求超时时间，默认5秒
+1. PORT: Service port.
+2. PROXY_KEY: Proxy access key used to restrict access.
+3. TIMEOUT: Request timeout, default is 5 seconds.
 
-## 接口使用方法
+## Usage of the API
 
-1. 将 openai 的请求地址（ https://api.openai.com ）变更为本 proxy 的地址（ 不带斜杠 ）
-1. 如果设置了PROXY_KEY，在 openai 的 key 后加上 `:<PROXY_KEY>`，如果没有设置，则不需修改
+1. Change the request address of OpenAI (https://api.openai.com) to the address of this proxy (without a slash).
+2. If PROXY_KEY is set, add `:<PROXY_KEY>` after the OpenAI key. If not set, no modification is required.
 
-## 说明 
+## Explanation
 
-1. 只支持 GET 和 POST 方法的接口，不支持文件相关接口
-1. 当前不支持SSE，因此需要关掉 stream 相关的选项
+1. Only GET and POST method interfaces are supported, and file-related interfaces are not supported.
+2. SSE is currently not supported, so stream-related options need to be turned off.
 
-## 客户端使用实例
+## Example of Client Usage
 
-以 `https://www.npmjs.com/package/chatgpt` 为例
+Take `https://www.npmjs.com/package/chatgpt` as an example.
 
 ```js
 chatApi= new gpt.ChatGPTAPI({
     apiKey: key,
-    apiBaseUrl: "http://localhost:9001", // 传递代理地址
+    apiBaseUrl: "http://localhost:9001", // Pass the proxy address
 });
 
-const ret = await chatApi.sendMessage(text, {"onProgress":null}); // 不要实现 onProgress，否则会报错           
+const ret = await chatApi.sendMessage(text, {"onProgress":null}); // Do not implement onProgress, otherwise an error will occur.
 ```
+
