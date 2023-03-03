@@ -1,6 +1,6 @@
 # openai-api-proxy
 
-Simple proxy for OpenAi api with one-line docker command
+Simple proxy for OpenAi api via a one-line docker command
 
 [简体中文](README.CN.md)
 
