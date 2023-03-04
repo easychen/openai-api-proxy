@@ -28,7 +28,7 @@ The proxy address is http://${IP}:9000.
 ## Explanation
 
 1. Only GET and POST method interfaces are supported, and file-related interfaces are not supported.
-2. SSE is currently not supported, so stream-related options need to be turned off.
+2. ~~SSE is currently not supported, so stream-related options need to be turned off.~~ SSE is OK now.
 
 ## Example of Client Usage
 
@@ -40,6 +40,5 @@ chatApi= new gpt.ChatGPTAPI({
     apiBaseUrl: "http://localhost:9001", // Pass the proxy address
 });
 
-const ret = await chatApi.sendMessage(text, {"onProgress":null}); // Do not implement onProgress, otherwise an error will occur.
 ```
 

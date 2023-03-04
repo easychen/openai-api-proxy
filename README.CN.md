@@ -20,7 +20,7 @@ Proxy地址为 http://${IP}:9000
 ## 说明 
 
 1. 只支持 GET 和 POST 方法的接口，不支持文件相关接口
-1. 当前不支持SSE，因此需要关掉 stream 相关的选项
+1. ~~当前不支持SSE，因此需要关掉 stream 相关的选项~~ 已支持
 
 ## 客户端使用实例
 
@@ -32,5 +32,5 @@ chatApi= new gpt.ChatGPTAPI({
     apiBaseUrl: "http://localhost:9001", // 传递代理地址
 });
 
-const ret = await chatApi.sendMessage(text, {"onProgress":null}); // 不要实现 onProgress，否则会报错           
+         
 ```

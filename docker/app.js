@@ -10,9 +10,6 @@ const bodyParser = require('body-parser')
 app.use(bodyParser.json({limit : '50mb' }));  
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const fetchSSE = require('./fetchsse.js');
-
-
 app.all(`*`, async (req, res) => {
   const url = `https://api.openai.com${req.url}`;
   // 从 header 中取得 Authorization': 'Bearer 后的 token
@@ -26,6 +23,8 @@ app.all(`*`, async (req, res) => {
   if( process.env.PROXY_KEY && proxy_key !== process.env.PROXY_KEY ) 
     return res.status(403).send('Forbidden');
 
+    //console.log( req );
+
   
   const options = {
       method: req.method,
@@ -33,23 +32,92 @@ app.all(`*`, async (req, res) => {
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
         'Authorization': 'Bearer '+ openai_key,
-    },
+      },
+      onMessage: (data) => {
+        console.log(data);
+        if( data === '[DONE]' )
+        {
+          res.write(data);
+          res.end();
+        }else
+        {
+          res.write("data: "+data+"\n\n" );
+        }
+          
+      }
   };
   
   if( req.method.toLocaleLowerCase() === 'post' && req.body ) options.body = JSON.stringify(req.body);
-  console.log({url, options});
+  // console.log({url, options});
 
   try {
-    const response = await myFetch(url, options);
-    console.log(response);
-    const data = await response.json();
-    console.log( data );
-    res.json(data);
+    
+    // 如果是 chat completion 和 text completion，使用 SSE
+    if( (req.url.startsWith('/v1/completions') || req.url.startsWith('/v1/chat/completions')) && req.body.stream ) {
+      const response = await myFetch(url, options);
+      if( response.ok )
+      {
+        // write header
+        res.writeHead(200, {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive',
+        });
+        const  { createParser } = await import("eventsource-parser");
+        const parser = createParser((event) => {
+          if (event.type === "event") {
+            options.onMessage(event.data);
+          }
+        });
+        if (!response.body.getReader) {
+          const body = response.body;
+          if (!body.on || !body.read) {
+            throw new ChatGPTError('unsupported "fetch" implementation');
+          }
+          body.on("readable", () => {
+            let chunk;
+            while (null !== (chunk = body.read())) {
+              parser.feed(chunk.toString());
+            }
+          });
+        } else {
+          for await (const chunk of streamAsyncIterable(response.body)) {
+            const str = new TextDecoder().decode(chunk);
+            parser.feed(str);
+          }
+        }
+      }
+      
+    }else
+    {
+      const response = await myFetch(url, options);
+      console.log(response);
+      const data = await response.json();
+      console.log( data );
+      res.json(data);
+    }
+    
+    
   } catch (error) {
     console.error(error);
     res.status(500).json({"error":error.toString()});  
   }
 })
+
+async function* streamAsyncIterable(stream) {
+  const reader = stream.getReader();
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        return;
+      }
+      yield value;
+    }
+  } finally {
+    reader.releaseLock();
+  }
+}
 
 async function myFetch(url, options) {
   const {timeout, ...fetchOptions} = options;
