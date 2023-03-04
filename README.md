@@ -42,3 +42,7 @@ chatApi= new gpt.ChatGPTAPI({
 
 ```
 
+## Acknowledgments
+
+1. SSE referenced the related code in [chatgpt-api project](https://github.com/transitive-bullshit/chatgpt-api/blob/main/src/fetch-sse.ts).
+

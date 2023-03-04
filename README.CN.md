@@ -1,3 +1,5 @@
+> ⚠️ 这是代理的服务器端，不是客户端。需要部署到可以联通 openai api 的网络环境后访问。
+
 ## Docker 
 
 ```
@@ -31,6 +33,9 @@ chatApi= new gpt.ChatGPTAPI({
     apiKey: 'sk.....:<proxy_key写这里>',
     apiBaseUrl: "http://localhost:9001", // 传递代理地址
 });
-
-         
+   
 ```
+
+## 致谢
+
+1. SSE参考了[chatgpt-api项目相关代码](https://github.com/transitive-bullshit/chatgpt-api/blob/main/src/fetch-sse.ts)
