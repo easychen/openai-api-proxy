@@ -34,16 +34,12 @@ app.all(`*`, async (req, res) => {
         'Authorization': 'Bearer '+ openai_key,
       },
       onMessage: (data) => {
-        console.log(data);
+        // console.log(data);
+        res.write("data: "+data+"\n\n" );
         if( data === '[DONE]' )
         {
-          res.write(data);
           res.end();
-        }else
-        {
-          res.write("data: "+data+"\n\n" );
-        }
-          
+        } 
       }
   };
   
@@ -72,7 +68,7 @@ app.all(`*`, async (req, res) => {
         if (!response.body.getReader) {
           const body = response.body;
           if (!body.on || !body.read) {
-            throw new ChatGPTError('unsupported "fetch" implementation');
+            throw new error('unsupported "fetch" implementation');
           }
           body.on("readable", () => {
             let chunk;
