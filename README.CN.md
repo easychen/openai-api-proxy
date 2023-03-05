@@ -1,6 +1,14 @@
 > ⚠️ 这是代理的服务器端，不是客户端。需要部署到可以联通 openai api 的网络环境后访问。
 
-## Docker 
+## NodeJS部署
+
+你可以把 ./app.js 部署到所有支持 nodejs 14+ 的环境，比如云函数和边缘计算平台。
+
+1. 复制 app.js 和 package.json 到目录 
+1. yarn install 安装依赖
+1. node app.js 启动服务
+
+## Docker部署 
 
 ```
 docker run -p 9000:9000 easychen/ai.level06.com:latest

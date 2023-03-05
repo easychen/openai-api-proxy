@@ -6,7 +6,15 @@ Simple proxy for OpenAi api via a one-line docker command
 
 以下英文由GPT翻译。The following English was translated by GPT.
 
-## Docker
+## NodeJS Deployment
+
+You can deploy ./app.js to any environment that supports nodejs 14+, such as cloud functions and edge computing platforms.
+
+1. Copy app.js and package.json to the directory
+2. Run yarn install to install dependencies
+3. Run node app.js to start the service.
+
+## Docker Deployment
 
 ```
 docker run -p 9000:9000 easychen/ai.level06.com:latest
