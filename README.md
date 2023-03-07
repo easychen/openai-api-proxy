@@ -1,8 +1,12 @@
 # openai-api-proxy
 
+可以部署到docker和云函数的OpenAI API代理
 Simple proxy for OpenAi api via a one-line docker command
 
-[简体中文](README.CN.md)
+🎉 已经支持SSE，可以实时返回内容
+
+- [腾讯云函数部署教程](FUNC.md)
+- [简体中文](README.CN.md)
 
 以下英文由GPT翻译。The following English was translated by GPT.
 
