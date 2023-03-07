@@ -26,6 +26,10 @@ cd src && yarn add body-parser@1.20.2 cross-fetch@3.1.5 eventsource-parser@0.1.0
 
 ![](images/20230307123957.png)
 
-⑥ 把编辑器往下拉，「访问路径」就是代理API的URL了。
+⑥ 在触发管理中，选择创建触发器；版本选择 $LATEST，然后提交；创建完成后，访问路径就是该函数的公网路径；
+使用时将 `https://api.openai.com/` 替换为该路径即可，如 `https://api.openai.com/v1/chat/completions` 替换为 `https://xxxxx.apigw.tencentcs.com/release/v1/chat/completions`
 
 ![](images/20230307124127.png)
+
+⑦ 调整函数执行超时时间，默认的3s会经常超时，建议调整为10s以上的时间
+![](images/20230307203401.png)
