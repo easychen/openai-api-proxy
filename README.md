@@ -6,7 +6,8 @@ Simple proxy for OpenAi api via a one-line docker command
 🎉 已经支持SSE，可以实时返回内容
 
 - [腾讯云函数部署教程](FUNC.md)
-- [简体中文](README.CN.md)
+- [简体中文使用说明](README.CN.md)
+- [《如何快速开发一个OpenAI/GPT应用：国内开发者笔记》](https://github.com/easychen/openai-gpt-dev-notes-for-cn-developer)
 
 以下英文由GPT翻译。The following English was translated by GPT.
 
