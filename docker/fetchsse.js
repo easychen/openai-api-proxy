@@ -18,7 +18,7 @@ async function fetchSSE(url, options, fetch2 = fetch) {
     const  { createParser } = await import("eventsource-parser");
     const { onMessage, timeout , ...fetchOptions } = options;
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout||5000)
+    const timeoutId = setTimeout(() => controller.abort(), timeout||30000)
     
     const res = await fetch2(url, {...fetchOptions,signal:controller.signal});
     clearTimeout(timeoutId);

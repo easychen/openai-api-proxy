@@ -118,7 +118,7 @@ async function* streamAsyncIterable(stream) {
 async function myFetch(url, options) {
   const {timeout, ...fetchOptions} = options;
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeout||5000)
+  const timeoutId = setTimeout(() => controller.abort(), timeout||30000)
   const res = await fetch(url, {...fetchOptions,signal:controller.signal});
   clearTimeout(timeoutId);
   return res;

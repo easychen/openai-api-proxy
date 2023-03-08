@@ -28,7 +28,7 @@ app.all(`*`, async (req, res) => {
   
   const options = {
       method: req.method,
-      timeout: process.env.TIMEOUT||5000,
+      timeout: process.env.TIMEOUT||30000,
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
         'Authorization': 'Bearer '+ openai_key,
@@ -118,7 +118,7 @@ async function* streamAsyncIterable(stream) {
 async function myFetch(url, options) {
   const {timeout, ...fetchOptions} = options;
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeout||5000)
+  const timeoutId = setTimeout(() => controller.abort(), timeout||30000)
   const res = await fetch(url, {...fetchOptions,signal:controller.signal});
   clearTimeout(timeoutId);
   return res;
