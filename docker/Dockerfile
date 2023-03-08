@@ -1,5 +1,5 @@
 FROM --platform=$TARGETPLATFORM node:18-alpine3.15
-EXPOSE 8088
+EXPOSE 9000
 RUN mkdir -p /data/api
 COPY app.js /data/api/app.js
 COPY fetchsse.js /data/api/fetchsse.js
