@@ -1,3 +1,5 @@
+> ⚠️ 由于腾讯云自身规则，部署后不支持SSE
+
 # 此Proxy可以部署到腾讯云函数
 
 ① 进入[云函数创建面板](https://console.cloud.tencent.com/scf/list-create?rid=5&ns=default&createType=empty)，选择日本/新加坡(有issue反馈因为unsupported location被封号，虽然无法完全确定原因，但建议不再使用~~中国香港~~)、web函数、NodeJS 16。
