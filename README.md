@@ -35,7 +35,8 @@ The proxy address is http://${IP}:9000.
 
 ## Usage of the API
 
-1. Change the request address of OpenAI (https://api.openai.com) to the address of this proxy (without a slash).
+1. Change the request address of OpenAI (https://api.openai.com) to the address of this proxy with the addition of "v1" (without a slash).
+   - Example: `http://${IP}:9000/v1`
 2. If PROXY_KEY is set, add `:<PROXY_KEY>` after the OpenAI key. If not set, no modification is required.
 
 ## Explanation
@@ -50,7 +51,7 @@ Take `https://www.npmjs.com/package/chatgpt` as an example.
 ```js
 chatApi= new gpt.ChatGPTAPI({
     apiKey: 'sk.....:<proxy_key here>',
-    apiBaseUrl: "http://localhost:9001", // Pass the proxy address
+    apiBaseUrl: "http://localhost:9001/v1", // Pass the proxy address
 });
 
 ```

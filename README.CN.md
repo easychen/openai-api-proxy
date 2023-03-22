@@ -24,8 +24,9 @@ Proxy地址为 http://${IP}:9000
 
 ## 接口使用方法
 
-1. 将 openai 的请求地址（ https://api.openai.com ）变更为本 proxy 的地址（ 不带斜杠 ）
-1. 如果设置了PROXY_KEY，在 openai 的 key 后加上 `:<PROXY_KEY>`，如果没有设置，则不需修改
+1. 将 openai 的请求地址（ https://api.openai.com ）变更为本 proxy 的地址加上 "v1"（ 不带斜杠 ）
+   - 举例： `http://${IP}:9000/v1`
+2. 如果设置了PROXY_KEY，在 openai 的 key 后加上 `:<PROXY_KEY>`，如果没有设置，则不需修改
 
 ## 说明 
 
@@ -39,7 +40,7 @@ Proxy地址为 http://${IP}:9000
 ```js
 chatApi= new gpt.ChatGPTAPI({
     apiKey: 'sk.....:<proxy_key写这里>',
-    apiBaseUrl: "http://localhost:9001", // 传递代理地址
+    apiBaseUrl: "http://localhost:9001/v1", // 传递代理地址
 });
    
 ```
