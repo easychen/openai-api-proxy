@@ -3,7 +3,7 @@
 可以部署到docker和云函数的OpenAI API代理
 Simple proxy for OpenAi api via a one-line docker command
 
-🎉 已经支持SSE，可以实时返回内容 💪 [支持流式内容文本安全](./stream-moderation.mov)
+🎉 已经支持SSE，可以实时返回内容 💪 [支持流式内容文本安全](./stream-moderation.mp4)
 
 - [腾讯云函数部署教程](FUNC.md)
 - [简体中文使用说明](README.CN.md)

@@ -4,7 +4,7 @@
 
 1. 支持SSE流式输出
 1. 内置文本安全审核（需要配置腾讯云KEY）
-1. 💪 SSE流式输出支持文本安全审核，[点击查看视频](./stream-moderation.mov)
+1. 💪 SSE流式输出支持文本安全审核，[点击查看视频](./stream-moderation.mp4)
 
 ## NodeJS部署
 
