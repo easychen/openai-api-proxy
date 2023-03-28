@@ -19,7 +19,7 @@
 ④ 在出现的终端中粘贴以下代码 
 
 ```bash
-cd src && yarn add body-parser@1.20.2 cross-fetch@3.1.5 eventsource-parser@0.1.0 express@4.18.2 multer@1.4.5-lts.1
+cd src && yarn add body-parser@1.20.2 cross-fetch@3.1.5 eventsource-parser@0.1.0 express@4.18.2 multer@1.4.5-lts.1 tencentcloud-sdk-nodejs@4.0.567 cors@2.8.5
 ```
 
 ![](images/20230307123910.png)
