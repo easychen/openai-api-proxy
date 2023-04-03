@@ -5,6 +5,8 @@ const app = express()
 var multer = require('multer');
 var forms = multer({limits: { fieldSize: 10*1024*1024 }});
 app.use(forms.array()); 
+const cors = require('cors');
+app.use(cors());
 
 const bodyParser = require('body-parser')
 app.use(bodyParser.json({limit : '50mb' }));  
