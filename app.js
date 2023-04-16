@@ -30,13 +30,14 @@ const mdClient = process.env.TENCENT_CLOUD_SID && process.env.TENCENT_CLOUD_SKEY
 const controller = new AbortController();
 
 app.all(`*`, async (req, res) => {
-  const url = `https://api.openai.com${req.url}`;
+  let url = `https://api.openai.com${req.url}`;
   // 从 header 中取得 Authorization': 'Bearer 后的 token
   const token = req.headers.authorization?.split(' ')[1];
   if( !token ) return res.status(403).send('Forbidden');
 
-  const openai_key = token.split(':')[0];
+  const openai_key = process.env.OPENAI_KEY||token.split(':')[0];
   if( !openai_key ) return res.status(403).send('Forbidden');
+  if( openai_key.startsWith("fk") ) url = url.replaceAll( "api.openai.com", "openai.api2d.net" );
 
   const proxy_key = token.split(':')[1]||"";  
   if( process.env.PROXY_KEY && proxy_key !== process.env.PROXY_KEY ) 
