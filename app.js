@@ -30,6 +30,8 @@ const mdClient = process.env.TENCENT_CLOUD_SID && process.env.TENCENT_CLOUD_SKEY
 const controller = new AbortController();
 
 app.all(`*`, async (req, res) => {
+  
+  if(req.originalUrl) req.url = req.originalUrl;
   let url = `https://api.openai.com${req.url}`;
   // 从 header 中取得 Authorization': 'Bearer 后的 token
   const token = req.headers.authorization?.split(' ')[1];
