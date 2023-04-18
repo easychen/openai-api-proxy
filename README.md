@@ -3,7 +3,7 @@
 可以部署到docker和云函数的OpenAI API代理
 Simple proxy for OpenAi api via a one-line docker command
 
-🌳 如果你懒得自己搭建，那么可以试试[国内可以访问、可以充值的第三方OpenAI API服务：API2D.com](https://api2d.com/r/186008)
+🌳 如果你懒得自己搭建，那么可以试试[国内可以访问、可以微信充值的第三方OpenAI API服务：API2D.com](https://api2d.com/r/186008)，支持Chat酱、OpenCat、NextWeb、VSCode插件。
 
 
 - [腾讯云函数部署教程](FUNC.md)
