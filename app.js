@@ -218,6 +218,10 @@ app.all(`*`, async (req, res) => {
             parser.feed(str);
           }
         }
+      }else
+      {
+        const body = await response.text();
+        res.status(response.status).send(body);
       }
       
     }else
