@@ -3,12 +3,12 @@ const fetch = require('cross-fetch')
 const app = express()
 var multer = require('multer');
 var forms = multer({limits: { fieldSize: 10*1024*1024 }});
-app.use(forms.array()); 
+app.use(forms.array());
 const cors = require('cors');
 app.use(cors());
 
 const bodyParser = require('body-parser')
-app.use(bodyParser.json({limit : '50mb' }));  
+app.use(bodyParser.json({limit : '50mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const tencentcloud = require("tencentcloud-sdk-nodejs");
@@ -30,7 +30,7 @@ const mdClient = process.env.TENCENT_CLOUD_SID && process.env.TENCENT_CLOUD_SKEY
 const controller = new AbortController();
 
 app.all(`*`, async (req, res) => {
-  
+
   if(req.originalUrl) req.url = req.originalUrl;
   let url = `https://api.openai.com${req.url}`;
   // 从 header 中取得 Authorization': 'Bearer 后的 token
@@ -41,9 +41,13 @@ app.all(`*`, async (req, res) => {
   if( !openai_key ) return res.status(403).send('Forbidden');
   if( openai_key.startsWith("fk") ) url = url.replaceAll( "api.openai.com", "openai.api2d.net" );
 
-  const proxy_key = token.split(':')[1]||"";  
-  if( process.env.PROXY_KEY && proxy_key !== process.env.PROXY_KEY ) 
+  const proxy_key = token.split(':')[1]||"";
+  const validProxyKeys = process.env.PROXY_KEY ? process.env.PROXY_KEY.split(',') : [];
+  // 检查传入的proxy_key是否在有效的PROXY_KEY列表中
+  if (process.env.PROXY_KEY && !validProxyKeys.includes(proxy_key)){
+    console.log("拒绝访问, PROXY_KEY无效");
     return res.status(403).send('Forbidden');
+  }
 
   // console.log( req );
   const { moderation, moderation_level, ...restBody } = req.body;
@@ -62,7 +66,7 @@ app.all(`*`, async (req, res) => {
     }
 
     console.log("句子缓冲区" + new Date(), sentence_buffer);
-    
+
     // 处理句子缓冲区
     if( processing )
     {
@@ -71,7 +75,7 @@ app.all(`*`, async (req, res) => {
       setTimeout( () => process_buffer(res), 1000 );
       return false;
     }
-    
+
     processing = true;
     const sentence = sentence_buffer.shift();
     console.log("取出句子", sentence);
@@ -94,7 +98,7 @@ app.all(`*`, async (req, res) => {
         console.log("sentence_content", sentence_content);
         if( sentence_content )
         {
-          const params = {"Content": Buffer.from(sentence_content).toString('base64')};  
+          const params = {"Content": Buffer.from(sentence_content).toString('base64')};
           const md_result = await mdClient.TextModeration(params);
           // console.log("审核结果", md_result);
           let md_check = moderation_level == 'high' ? md_result.Suggestion != 'Pass' : md_result.Suggestion == 'Block';
@@ -130,57 +134,57 @@ app.all(`*`, async (req, res) => {
     processing = false;
   }
 
-  
+
   const options = {
-      method: req.method,
-      timeout: process.env.TIMEOUT||30000,
-      signal: controller.signal,
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer '+ openai_key,
-      },
-      onMessage: async (data) => {
-        // console.log(data);
-        if( data === '[DONE]' )
+    method: req.method,
+    timeout: process.env.TIMEOUT||30000,
+    signal: controller.signal,
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Authorization': 'Bearer '+ openai_key,
+    },
+    onMessage: async (data) => {
+      // console.log(data);
+      if( data === '[DONE]' )
+      {
+        sentence_buffer.push(data);
+        await process_buffer(res);
+      }else
+      {
+        if( moderation && mdClient )
         {
-          sentence_buffer.push(data);
-          await process_buffer(res);  
+          try {
+            let data_array = JSON.parse(data);
+            const char = data_array.choices[0]?.delta?.content;
+            if( char ) sentence += char;
+            // console.log("sentence",sentence );
+            if( char == '。' || char == '？' || char == '！' || char == "\n" )
+            {
+              // 将 sentence 送审
+              console.log("遇到句号，将句子放入缓冲区", sentence);
+              data_array.choices[0].delta.content = sentence;
+              sentence = "";
+              sentence_buffer.push(JSON.stringify(data_array));
+              await process_buffer(res);
+            }
+          } catch (error) {
+            // 因为开头已经处理的了 [DONE] 的情况，这里应该不会出现无法解析json的情况
+            console.log( "error", error );
+          }
         }else
         {
-          if( moderation && mdClient )
-          {
-            try {
-              let data_array = JSON.parse(data);
-              const char = data_array.choices[0]?.delta?.content;
-              if( char ) sentence += char;
-              // console.log("sentence",sentence );
-              if( char == '。' || char == '？' || char == '！' || char == "\n" )
-              {
-                // 将 sentence 送审
-                console.log("遇到句号，将句子放入缓冲区", sentence);
-                data_array.choices[0].delta.content = sentence;
-                sentence = "";
-                sentence_buffer.push(JSON.stringify(data_array));
-                await process_buffer(res);
-              }
-            } catch (error) {
-              // 因为开头已经处理的了 [DONE] 的情况，这里应该不会出现无法解析json的情况 
-              console.log( "error", error );
-            }   
-          }else
-          {
-            // 如果没有文本审核参数或者设置，直接输出
-            res.write("data: "+data+"\n\n" );  
-          }
+          // 如果没有文本审核参数或者设置，直接输出
+          res.write("data: "+data+"\n\n" );
         }
       }
+    }
   };
-  
+
   if( req.method.toLocaleLowerCase() === 'post' && req.body ) options.body = JSON.stringify(restBody);
   // console.log({url, options});
 
   try {
-    
+
     // 如果是 chat completion 和 text completion，使用 SSE
     if( (req.url.startsWith('/v1/completions') || req.url.startsWith('/v1/chat/completions')) && req.body.stream ) {
       console.log("使用 SSE");
@@ -195,7 +199,7 @@ app.all(`*`, async (req, res) => {
         });
         const  { createParser } = await import("eventsource-parser");
         const parser = createParser((event) => {
-          // console.log(event);    
+          // console.log(event);
           if (event.type === "event") {
             options.onMessage(event.data);
           }
@@ -218,43 +222,53 @@ app.all(`*`, async (req, res) => {
             parser.feed(str);
           }
         }
-      }else
-      {
-        const body = await response.text();
-        res.status(response.status).send(body);
-      }
-      
-    }else
-    {
-      console.log("使用 fetch");
-      const response = await myFetch(url, options);
-      // console.log(response);
-      const data = await response.json();
-      // 审核结果
-      if( moderation && mdClient )
-      {
-        const params = {"Content": Buffer.from(data.choices[0].message.content).toString('base64')};  
-        const md_result = await mdClient.TextModeration(params);
-        // console.log("审核结果", md_result);
-        let md_check = moderation_level == 'high' ? md_result.Suggestion != 'Pass' : md_result.Suggestion == 'Block';
-        if( md_check )
-        {
-          // 终止输出
-          console.log("审核不通过", data.choices[0].message.content, md_result);
-          data.choices[0].message.content = "这个话题不适合讨论，换个话题吧。";
-        }else
-        {
-          console.log("审核通过", data.choices[0].message.content);
-        }
       }
 
-      res.json(data);
+    }else{
+      console.log("使用 fetch");
+      const response = await myFetch(url, options);
+      // 检查返回的内容类型
+      const contentType = response.headers.get("Content-Type");
+      // 根据内容类型处理返回的数据
+      if (contentType.includes("application/json")) {
+        // 处理JSON数据
+        const data = await response.json();
+        // 审核结果
+        if (moderation && mdClient) {
+          const params = {"Content": Buffer.from(data.choices[0].message.content).toString('base64')};
+          const md_result = await mdClient.TextModeration(params);
+          console.log("审核结果", md_result);
+
+          let md_check = moderation_level == 'high' ? md_result.Suggestion != 'Pass' : md_result.Suggestion == 'Block';
+          if (md_check) {
+            // 终止输出
+            console.log("审核不通过", data.choices[0].message.content, md_result);
+            data.choices[0].message.content = "这个话题不适合讨论，换个话题吧。";
+          } else {
+            console.log("审核通过", data.choices[0].message.content);
+          }
+        }
+        // 返回JSON数据
+        res.json(data);
+      } else if (contentType.includes("audio")) {
+        // 处理Audio数据
+        const audioBlob = await response.blob();
+        // 需要设置正确的Content-Type
+        res.setHeader('Content-Type', 'audio/mpeg');
+        // 发送音频数据给客户端
+        const audioStream = audioBlob.stream();
+        audioStream.pipe(res);
+      } else {
+        // 处理其他类型的返回或抛出错误
+        console.log("返回了未知类型的数据");
+        res.status(500).send("返回了未知类型的数据");
+      }
     }
-    
-    
+
+
   } catch (error) {
     console.error(error);
-    res.status(500).json({"error":error.toString()});  
+    res.status(500).json({"error":error.toString()});
   }
 })
 
