@@ -41,9 +41,14 @@ app.all(`*`, async (req, res) => {
   if( !openai_key ) return res.status(403).send('Forbidden');
   if( openai_key.startsWith("fk") ) url = url.replaceAll( "api.openai.com", "openai.api2d.net" );
 
-  const proxy_key = token.split(':')[1]||"";  
-  if( process.env.PROXY_KEY && proxy_key !== process.env.PROXY_KEY ) 
+  const proxy_key = token.split(':')[1]||"";
+  console.log("PROXY_KEY:" + proxy_key);
+  const validProxyKeys = process.env.PROXY_KEY ? process.env.PROXY_KEY.split(',') : [];
+  // 检查传入的proxy_key是否在有效的PROXY_KEY列表中
+  if (process.env.PROXY_KEY && !validProxyKeys.includes(proxy_key)){
+    console.log("拒绝访问, PROXY_KEY无效");
     return res.status(403).send('Forbidden');
+  }
 
   // console.log( req );
   const { moderation, moderation_level, ...restBody } = req.body;
@@ -228,27 +233,41 @@ app.all(`*`, async (req, res) => {
     {
       console.log("使用 fetch");
       const response = await myFetch(url, options);
-      // console.log(response);
-      const data = await response.json();
-      // 审核结果
-      if( moderation && mdClient )
-      {
-        const params = {"Content": Buffer.from(data.choices[0].message.content).toString('base64')};  
-        const md_result = await mdClient.TextModeration(params);
-        // console.log("审核结果", md_result);
-        let md_check = moderation_level == 'high' ? md_result.Suggestion != 'Pass' : md_result.Suggestion == 'Block';
-        if( md_check )
-        {
-          // 终止输出
-          console.log("审核不通过", data.choices[0].message.content, md_result);
-          data.choices[0].message.content = "这个话题不适合讨论，换个话题吧。";
-        }else
-        {
-          console.log("审核通过", data.choices[0].message.content);
+      // 检查返回的内容类型
+      const contentType = response.headers.get("Content-Type");
+      // 根据内容类型处理返回的数据
+      if (contentType.includes("application/json")) {
+        // 处理JSON数据
+        const data = await response.json();
+        // 审核结果
+        if (moderation && mdClient) {
+          const params = {"Content": Buffer.from(data.choices[0].message.content).toString('base64')};
+          const md_result = await mdClient.TextModeration(params);
+          console.log("审核结果", md_result);
+          let md_check = moderation_level == 'high' ? md_result.Suggestion != 'Pass' : md_result.Suggestion == 'Block';
+          if (md_check) {
+            // 终止输出
+            console.log("审核不通过", data.choices[0].message.content, md_result);
+            data.choices[0].message.content = "这个话题不适合讨论，换个话题吧。";
+          } else {
+            console.log("审核通过", data.choices[0].message.content);
+          }
         }
+        // 返回JSON数据
+        res.json(data);
+      } else if (contentType.includes("audio")) {
+        // 处理Audio数据
+        const audioBlob = await response.blob();
+        // 需要设置正确的Content-Type
+        res.setHeader('Content-Type', 'audio/mpeg');
+        // 发送音频数据给客户端
+        const audioStream = audioBlob.stream();
+        audioStream.pipe(res);
+      } else {
+        // 处理其他类型的返回或抛出错误
+        console.log("返回了未知类型的数据");
+        res.status(500).send("返回了未知类型的数据");
       }
-
-      res.json(data);
     }
     
     
